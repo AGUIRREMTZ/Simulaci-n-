@@ -1,0 +1,63 @@
+import random
+import heapq
+
+# Parámetros de la simulación
+TIEMPO_TOTAL_SIMULACION = 10000  # segundos
+TASA_LLEGADA = 0.5               # clientes por segundo (lambda)
+TASA_SERVICIO = 0.6              # clientes por segundo (mu)
+
+# Variables de estado
+reloj_simulacion = 0.0
+cola_clientes = []
+servidor_ocupado = False
+
+# Variables de recolección de datos
+tiempo_total_espera = 0.0
+clientes_atendidos = 0
+
+# Cola de eventos (usando heapq para una cola de prioridad)
+# Los eventos se almacenan como tuplas: (tiempo_evento, tipo_evento)
+eventos = [(random.expovariate(TASA_LLEGADA), "llegada")]
+
+while reloj_simulacion < TIEMPO_TOTAL_SIMULACION:
+    # Obtiene el evento más próximo
+    tiempo_evento, tipo_evento = heapq.heappop(eventos)
+    reloj_simulacion = tiempo_evento
+
+    if tipo_evento == "llegada":
+        # Un cliente ha llegado
+        heapq.heappush(eventos, (reloj_simulacion + random.expovariate(TASA_LLEGADA), "llegada"))
+
+        if not servidor_ocupado:
+            # El servidor está libre, el cliente es atendido inmediatamente
+            tiempo_servicio = random.expovariate(TASA_SERVICIO)
+            heapq.heappush(eventos, (reloj_simulacion + tiempo_servicio, "salida"))
+            servidor_ocupado = True
+        else:
+            # El servidor está ocupado, el cliente entra en la cola
+            cola_clientes.append(reloj_simulacion)
+
+    elif tipo_evento == "salida":
+        # Un cliente ha sido atendido
+        clientes_atendidos += 1
+        
+        if cola_clientes:
+            # Hay clientes en la cola, el siguiente es atendido
+            tiempo_llegada_cliente = cola_clientes.pop(0)
+            tiempo_espera = reloj_simulacion - tiempo_llegada_cliente
+            tiempo_total_espera += tiempo_espera
+            
+            tiempo_servicio = random.expovariate(TASA_SERVICIO)
+            heapq.heappush(eventos, (reloj_simulacion + tiempo_servicio, "salida"))
+        else:
+            # No hay más clientes, el servidor queda libre
+            servidor_ocupado = False
+
+# Muestra los resultados
+if clientes_atendidos > 0:
+    espera_promedio = tiempo_total_espera / clientes_atendidos
+    print(f"Simulación de un sistema de cola de 1 servidor\n")
+    print(f"Clientes atendidos: {clientes_atendidos}")
+    print(f"Tiempo de espera promedio: {espera_promedio:.2f} segundos")
+else:
+    print("No se atendieron clientes durante la simulación.")

@@ -1,0 +1,12 @@
+#random es un modulo ede python que contiene funciones para gestionar numeros aleatorios
+#pero es aleatoriedad pseudo aleatoria(algoritmo determinista)
+import random
+
+#es un bucle que se ejecuta 100 veces generando numeros enteros del 1 al 100
+for i in range(100):
+
+#se llama a random.random() que devolvera un float con distribucion uniforme en un
+#intervalo entre 0.0 y 1.0
+  numero = random.random()
+#el formato .4f hace que el numero con punto decimal solo tenga 4 digitos
+  print(f"numero aleatorio{i+1}: {numero:.4f}")

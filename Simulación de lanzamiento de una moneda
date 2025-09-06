@@ -1,0 +1,17 @@
+import random
+
+# Simular 1000 lanzamientos de una moneda
+n_lanzamientos = 1000
+cara = 0
+cruz = 0
+
+for _ in range(n_lanzamientos):
+    if random.random() < 0.5:  # 50% de probabilidad
+        cara += 1
+    else:
+        cruz += 1
+
+print(f"Resultados después de {n_lanzamientos} lanzamientos:")
+print(f"Caras: {cara}")
+print(f"Cruces: {cruz}")
+print(f"Probabilidad estimada de cara: {cara/n_lanzamientos:.3f}")

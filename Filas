@@ -1,0 +1,53 @@
+import random
+
+# Número de clientes a simular
+n_clientes = 10
+
+# Parámetros de la simulación
+tiempo_llegada_min = 1   # tiempo mínimo entre llegadas
+tiempo_llegada_max = 5   # tiempo máximo entre llegadas
+tiempo_servicio_min = 2  # tiempo mínimo de atención
+tiempo_servicio_max = 6  # tiempo máximo de atención
+
+# Variables de control
+tiempo_actual = 0
+tiempo_cajero_libre = 0
+
+# Resultados
+esperas = []
+tiempos_totales = []
+
+print("Cliente | Llegada | Inicio Servicio | Fin Servicio | Espera | Tiempo en sistema")
+
+for i in range(1, n_clientes + 1):
+    # Generar tiempo de llegada y servicio aleatorio
+    tiempo_llegada = random.randint(tiempo_llegada_min, tiempo_llegada_max)
+    tiempo_servicio = random.randint(tiempo_servicio_min, tiempo_servicio_max)
+    
+    # Acumular el tiempo actual de llegada
+    tiempo_actual += tiempo_llegada
+    
+    # El cliente inicia servicio cuando llega y el cajero está libre
+    inicio_servicio = max(tiempo_actual, tiempo_cajero_libre)
+    
+    # Calculamos cuando termina el servicio
+    fin_servicio = inicio_servicio + tiempo_servicio
+    
+    # Tiempo de espera
+    espera = inicio_servicio - tiempo_actual
+    
+    # Tiempo total en el sistema
+    tiempo_total = fin_servicio - tiempo_actual
+    
+    # Guardamos resultados
+    esperas.append(espera)
+    tiempos_totales.append(tiempo_total)
+    
+    # Actualizamos el momento en que el cajero queda libre
+    tiempo_cajero_libre = fin_servicio
+    
+    print(f"{i:^7} | {tiempo_actual:^7} | {inicio_servicio:^15} | {fin_servicio:^12} | {espera:^6} | {tiempo_total:^16}")
+
+# Promedios
+print("\nTiempo promedio de espera:", sum(esperas)/len(esperas))
+print("Tiempo promedio en el sistema:", sum(tiempos_totales)/len(tiempos_totales))

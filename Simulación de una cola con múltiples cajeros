@@ -1,0 +1,56 @@
+import random
+
+# Parámetros
+n_clientes = 15
+n_cajeros = 3
+
+tiempo_llegada_min = 1
+tiempo_llegada_max = 4
+tiempo_servicio_min = 2
+tiempo_servicio_max = 6
+
+# Variables
+tiempo_actual = 0
+tiempo_libre_cajeros = [0] * n_cajeros  # lista con el tiempo en que cada cajero estará libre
+esperas = []
+tiempos_totales = []
+uso_cajeros = [0] * n_cajeros
+
+print("Cliente | Llegada | Cajero | Inicio Servicio | Fin Servicio | Espera | Tiempo en sistema")
+
+for i in range(1, n_clientes + 1):
+    # Generar tiempo de llegada y servicio
+    tiempo_llegada = random.randint(tiempo_llegada_min, tiempo_llegada_max)
+    tiempo_servicio = random.randint(tiempo_servicio_min, tiempo_servicio_max)
+    
+    # Acumular el tiempo actual de llegada
+    tiempo_actual += tiempo_llegada
+    
+    # Buscar el primer cajero que esté libre antes o justo en este momento
+    cajero = min(range(n_cajeros), key=lambda x: tiempo_libre_cajeros[x])
+    
+    # El cliente inicia cuando llega o cuando el cajero esté libre
+    inicio_servicio = max(tiempo_actual, tiempo_libre_cajeros[cajero])
+    fin_servicio = inicio_servicio + tiempo_servicio
+    
+    # Espera y tiempo en el sistema
+    espera = inicio_servicio - tiempo_actual
+    tiempo_total = fin_servicio - tiempo_actual
+    
+    # Guardar resultados
+    esperas.append(espera)
+    tiempos_totales.append(tiempo_total)
+    uso_cajeros[cajero] += tiempo_servicio
+    
+    # Actualizar disponibilidad del cajero
+    tiempo_libre_cajeros[cajero] = fin_servicio
+    
+    print(f"{i:^7} | {tiempo_actual:^7} | {cajero:^6} | {inicio_servicio:^15} | {fin_servicio:^12} | {espera:^6} | {tiempo_total:^16}")
+
+# Promedios y estadísticas
+print("\nTiempo promedio de espera:", sum(esperas)/len(esperas))
+print("Tiempo promedio en el sistema:", sum(tiempos_totales)/len(tiempos_totales))
+
+print("\nUso de cada cajero:")
+for c in range(n_cajeros):
+    print(f"Cajero {c}: {uso_cajeros[c]} unidades de tiempo ocupado")

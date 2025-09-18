@@ -1,0 +1,17 @@
+import random
+
+# Número de puntos a generar
+n_puntos = 100000
+dentro_circulo = 0
+
+for _ in range(n_puntos):
+    x = random.random()  # valor entre 0 y 1
+    y = random.random()
+    
+    # Si el punto cae dentro del círculo de radio 1
+    if x**2 + y**2 <= 1:
+        dentro_circulo += 1
+
+# Estimación de pi
+pi_estimado = 4 * dentro_circulo / n_puntos
+print(f"Estimación de π con {n_puntos} puntos: {pi_estimado}")

@@ -1,0 +1,25 @@
+import random
+import matplotlib.pyplot as plt
+
+# Número de puntos a generar
+n = 5000
+
+# Contadores
+dentro_circulo = 0
+x_dentro, y_dentro = [], []
+x_fuera, y_fuera = [], []
+
+for _ in range(n):
+    x = random.uniform(-1, 1)  # punto aleatorio en [-1, 1]
+    y = random.uniform(-1, 1)
+    
+    if x**2 + y**2 <= 1:
+        dentro_circulo += 1
+        x_dentro.append(x)
+        y_dentro.append(y)
+    else:
+        x_fuera.append(x)
+        y_fuera.append(y)
+
+# Estimación de π
+pi_estimado = 4_

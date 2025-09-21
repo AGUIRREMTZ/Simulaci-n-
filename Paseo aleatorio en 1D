@@ -1,0 +1,20 @@
+import random
+import matplotlib.pyplot as plt
+
+# Parámetros
+n_pasos = 100
+posicion = 0
+historia = [posicion]
+
+for _ in range(n_pasos):
+    paso = random.choice([-1, 1])  # -1 (izquierda) o +1 (derecha)
+    posicion += paso
+    historia.append(posicion)
+
+# Graficar el paseo
+plt.plot(historia, marker="o", linestyle="-", color="blue")
+plt.title("Paseo Aleatorio en 1D")
+plt.xlabel("Número de pasos")
+plt.ylabel("Posición")
+plt.grid(True)
+plt.show()

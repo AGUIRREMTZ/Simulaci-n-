@@ -1,0 +1,46 @@
+import random
+
+# Parámetros de simulación
+dias = 30               # Simular 30 días
+inventario_inicial = 50 # Productos al inicio
+nivel_reorden = 20      # Cuando baja a este nivel, se pide más
+cantidad_pedido = 40    # Cantidad pedida cada vez
+demanda_min = 5         # Demanda mínima diaria
+demanda_max = 15        # Demanda máxima diaria
+
+# Variables de control
+inventario = inventario_inicial
+total_faltantes = 0
+total_pedidos = 0
+historial_inventario = []
+
+print("Día | Demanda | Inventario inicial | Venta realizada | Faltantes | Inventario final")
+
+for dia in range(1, dias + 1):
+    # Generar demanda aleatoria del día
+    demanda = random.randint(demanda_min, demanda_max)
+    inventario_inicial_dia = inventario
+    
+    # Venta realizada depende de inventario disponible
+    venta = min(demanda, inventario)
+    faltantes = max(0, demanda - inventario)
+    
+    inventario -= venta
+    total_faltantes += faltantes
+    
+    # Revisar si es necesario hacer pedido
+    if inventario <= nivel_reorden:
+        inventario += cantidad_pedido
+        total_pedidos += 1
+    
+    historial_inventario.append(inventario)
+    
+    print(f"{dia:^3} | {demanda:^7} | {inventario_inicial_dia:^18} | {venta:^15} | {faltantes:^9} | {inventario:^15}")
+
+# Resultados
+inventario_promedio = sum(historial_inventario) / len(historial_inventario)
+
+print("\n📊 Resultados finales:")
+print("Inventario promedio:", round(inventario_promedio, 2))
+print("Total de faltantes:", total_faltantes)
+print("Pedidos realizados:", total_pedidos)

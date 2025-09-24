@@ -1,0 +1,31 @@
+import random
+
+# Parámetros
+dias = 30
+produccion_diaria = 100  # piezas si trabaja bien
+prob_falla = 0.2         # 20% de probabilidad de fallar en un día
+
+# Variables
+produccion_total = 0
+dias_falla = 0
+historial = []
+
+print("Día | Estado máquina | Producción del día | Producción acumulada")
+
+for dia in range(1, dias + 1):
+    # ¿La máquina falla?
+    if random.random() < prob_falla:
+        estado = "FALLA"
+        produccion = 0
+        dias_falla += 1
+    else:
+        estado = "OK"
+        produccion = produccion_diaria
+    
+    produccion_total += produccion
+    historial.append(produccion)
+    
+    print(f"{dia:^3} | {estado:^14} | {produccion:^17} | {produccion_total:^21}")
+
+# Resultados
+pr

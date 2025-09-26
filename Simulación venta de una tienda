@@ -1,0 +1,33 @@
+import random
+
+# Parámetros de simulación
+dias = 7                     # Simular 1 semana
+precio_articulo = 50         # Precio por artículo
+clientes_min = 5             # Mínimo de clientes por día
+clientes_max = 15            # Máximo de clientes por día
+articulos_min = 1            # Mínimo de artículos por cliente
+articulos_max = 5            # Máximo de artículos por cliente
+
+# Variables
+ventas_totales = 0
+cliente_top = {"dia": 0, "cliente": 0, "gasto": 0}
+
+print("Día | Cliente | Artículos comprados | Gasto | Ventas acumuladas")
+
+for dia in range(1, dias + 1):
+    clientes = random.randint(clientes_min, clientes_max)
+    for cliente in range(1, clientes + 1):
+        articulos = random.randint(articulos_min, articulos_max)
+        gasto = articulos * precio_articulo
+        ventas_totales += gasto
+        
+        # Verificar si este cliente es el que más gastó
+        if gasto > cliente_top["gasto"]:
+            cliente_top = {"dia": dia, "cliente": cliente, "gasto": gasto}
+        
+        print(f"{dia:^3} | {cliente:^7} | {articulos:^19} | {gasto:^5} | {ventas_totales:^17}")
+
+# Resultados finales
+print("\n📊 Resultados finales:")
+print("Ventas totales en la semana:", ventas_totales)
+print(f"Cliente que más gastó: Día {cliente_top['dia']} - Cliente {cliente_top['cliente']} con gasto de {cliente_top['gasto']}")

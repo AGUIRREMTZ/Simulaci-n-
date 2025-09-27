@@ -1,0 +1,50 @@
+import random
+
+# Parámetros
+dias = 15
+camas_totales = 10
+pacientes_min = 2
+pacientes_max = 6
+estancia_min = 1
+estancia_max = 5
+
+# Variables
+camas_ocupadas = []
+pacientes_atendidos = 0
+pacientes_rechazados = 0
+ocupacion_historial = []
+
+print("Día | Llegan | Atendidos | Rechazados | Camas ocupadas al final")
+
+for dia in range(1, dias + 1):
+    # Reducir estancias: cada día bajamos 1 día a los pacientes hospitalizados
+    camas_ocupadas = [dias_restantes - 1 for dias_restantes in camas_ocupadas if dias_restantes > 1]
+    
+    # Llegan pacientes aleatorios
+    llegadas = random.randint(pacientes_min, pacientes_max)
+    atendidos = 0
+    rechazados = 0
+    
+    for _ in range(llegadas):
+        if len(camas_ocupadas) < camas_totales:
+            # Paciente aceptado con estancia aleatoria
+            estancia = random.randint(estancia_min, estancia_max)
+            camas_ocupadas.append(estancia)
+            atendidos += 1
+            pacientes_atendidos += 1
+        else:
+            rechazados += 1
+            pacientes_rechazados += 1
+    
+    ocupacion_historial.append(len(camas_ocupadas))
+    
+    print(f"{dia:^3} | {llegadas:^6} | {atendidos:^9} | {rechazados:^10} | {len(camas_ocupadas):^24}")
+
+# Resultados finales
+ocupacion_promedio = sum(ocupacion_historial) / len(ocupacion_historial)
+
+print("\n📊 Resultados finales:")
+print("Pacientes atendidos:", pacientes_atendidos)
+print("Pacientes rechazados:", pacientes_rechazados)
+print("Ocupación promedio de camas:", round(ocupacion_promedio, 2), "/", camas_totales)
+print("Porcentaje de ocupación:", round(100 * ocupacion_promedio / camas_totales, 2), "%")

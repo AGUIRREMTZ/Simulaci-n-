@@ -1,0 +1,24 @@
+import random
+import simpy
+import statistics
+
+# Parámetros de la simulación
+TIEMPO_SIMULACION = 50     # Tiempo total de la simulación
+TIEMPO_LLEGADA = 5         # Tiempo promedio entre llegadas
+TIEMPO_SERVICIO = 8        # Tiempo promedio de atención
+NUM_CAJEROS = 2            # Número de cajeros
+
+# Variables para recopilar estadísticas
+tiempos_espera = []
+
+def cliente(env, nombre, banco):
+    """Proceso que simula la llegada de un cliente al banco"""
+    llegada = env.now
+    print(f"{nombre} llega al banco en t={env.now:.2f}")
+
+    # El cliente solicita un cajero
+    with banco.request() as req:
+        yield req
+        espera = env.now - llegada
+        tiempos_espera.append(espera)
+        print(f"{nombre} comienza a ser atendido en t={env.now:.2f},

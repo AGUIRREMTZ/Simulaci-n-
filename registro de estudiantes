@@ -1,0 +1,132 @@
+import csv
+from statistics import mean
+
+# --- Excepción personalizada ---
+class EstudianteNoEncontrado(Exception):
+    pass
+
+
+# --- Clase principal ---
+class Estudiante:
+    def __init__(self, nombre, edad, calificaciones):
+        self.nombre = nombre
+        self.edad = int(edad)
+        self.calificaciones = [float(c) for c in calificaciones]
+
+    def promedio(self):
+        return mean(self.calificaciones)
+
+    def __repr__(self):
+        return f"{self.nombre} ({self.edad} años) - Promedio: {self.promedio():.2f}"
+
+
+# --- Gestor principal ---
+class GestorEstudiantes:
+    def __init__(self, archivo="estudiantes.csv"):
+        self.archivo = archivo
+        self.estudiantes = self.cargar()
+
+    def guardar(self):
+        with open(self.archivo, "w", newline="", encoding="utf-8") as f:
+            escritor = csv.writer(f)
+            escritor.writerow(["nombre", "edad", "calificaciones"])
+            for e in self.estudiantes:
+                escritor.writerow([e.nombre, e.edad, ",".join(map(str, e.calificaciones))])
+
+    def cargar(self):
+        estudiantes = []
+        try:
+            with open(self.archivo, "r", encoding="utf-8") as f:
+                lector = csv.DictReader(f)
+                for fila in lector:
+                    calificaciones = fila["calificaciones"].split(",")
+                    estudiantes.append(Estudiante(fila["nombre"], fila["edad"], calificaciones))
+        except FileNotFoundError:
+            pass
+        return estudiantes
+
+    def agregar(self, nombre, edad, calificaciones):
+        nuevo = Estudiante(nombre, edad, calificaciones)
+        self.estudiantes.append(nuevo)
+        self.guardar()
+        print("✅ Estudiante agregado correctamente.")
+
+    def listar(self):
+        if not self.estudiantes:
+            print("📭 No hay estudiantes registrados.")
+            return
+        for e in sorted(self.estudiantes, key=lambda x: x.promedio(), reverse=True):
+            print(e)
+
+    def buscar(self, nombre):
+        for e in self.estudiantes:
+            if e.nombre.lower() == nombre.lower():
+                print("🔎 Resultado encontrado:", e)
+                return e
+        raise EstudianteNoEncontrado(f"No se encontró el estudiante '{nombre}'.")
+
+    def eliminar(self, nombre):
+        inicial = len(self.estudiantes)
+        self.estudiantes = [e for e in self.estudiantes if e.nombre.lower() != nombre.lower()]
+        if len(self.estudiantes) < inicial:
+            self.guardar()
+            print(f"🗑️ Estudiante '{nombre}' eliminado.")
+        else:
+            raise EstudianteNoEncontrado(f"No se encontró el estudiante '{nombre}'.")
+
+    def mejores(self, n=3):
+        top = sorted(self.estudiantes, key=lambda x: x.promedio(), reverse=True)[:n]
+        print(f"🏆 Top {n} estudiantes con mejor promedio:")
+        for e in top:
+            print("  ", e)
+
+
+# --- Menú principal ---
+def menu():
+    gestor = GestorEstudiantes()
+
+    while True:
+        print("\n=== GESTOR DE ESTUDIANTES ===")
+        print("1. Agregar estudiante")
+        print("2. Listar estudiantes")
+        print("3. Buscar estudiante")
+        print("4. Eliminar estudiante")
+        print("5. Mostrar mejores promedios")
+        print("6. Salir")
+
+        opcion = input("Selecciona una opción: ")
+
+        try:
+            if opcion == "1":
+                nombre = input("Nombre: ")
+                edad = int(input("Edad: "))
+                calificaciones = input("Calificaciones separadas por comas (ej: 8.5,9,7): ").split(",")
+                gestor.agregar(nombre, edad, calificaciones)
+
+            elif opcion == "2":
+                gestor.listar()
+
+            elif opcion == "3":
+                nombre = input("Nombre a buscar: ")
+                gestor.buscar(nombre)
+
+            elif opcion == "4":
+                nombre = input("Nombre a eliminar: ")
+                gestor.eliminar(nombre)
+
+            elif opcion == "5":
+                n = int(input("¿Cuántos mostrar?: "))
+                gestor.mejores(n)
+
+            elif opcion == "6":
+                print("👋 ¡Hasta pronto!")
+                break
+
+            else:
+                print("⚠️ Opción no válida.")
+        except Exception as e:
+            print("❌ Error:", e)
+
+
+if __name__ == "__main__":
+    menu()

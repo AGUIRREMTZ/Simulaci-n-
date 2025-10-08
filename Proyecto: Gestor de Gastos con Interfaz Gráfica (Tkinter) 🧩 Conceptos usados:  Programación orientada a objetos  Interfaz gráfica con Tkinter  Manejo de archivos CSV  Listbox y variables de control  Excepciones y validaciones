@@ -1,0 +1,124 @@
+import tkinter as tk
+from tkinter import ttk, messagebox
+import csv
+from datetime import datetime
+
+class GestorGastos:
+    def __init__(self, archivo="gastos.csv"):
+        self.archivo = archivo
+        self.gastos = self.cargar()
+
+    def cargar(self):
+        gastos = []
+        try:
+            with open(self.archivo, "r", encoding="utf-8") as f:
+                lector = csv.DictReader(f)
+                for fila in lector:
+                    gastos.append(fila)
+        except FileNotFoundError:
+            pass
+        return gastos
+
+    def guardar(self):
+        with open(self.archivo, "w", newline="", encoding="utf-8") as f:
+            campos = ["fecha", "categoria", "descripcion", "monto"]
+            escritor = csv.DictWriter(f, fieldnames=campos)
+            escritor.writeheader()
+            escritor.writerows(self.gastos)
+
+    def agregar_gasto(self, categoria, descripcion, monto):
+        gasto = {
+            "fecha": datetime.now().strftime("%Y-%m-%d %H:%M"),
+            "categoria": categoria,
+            "descripcion": descripcion,
+            "monto": f"{float(monto):.2f}"
+        }
+        self.gastos.append(gasto)
+        self.guardar()
+
+    def total(self):
+        return sum(float(g["monto"]) for g in self.gastos)
+
+
+# --- Interfaz gráfica ---
+class AppGastos(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.title("💸 Gestor de Gastos Personales")
+        self.geometry("600x400")
+        self.resizable(False, False)
+
+        self.gestor = GestorGastos()
+
+        # --- Variables ---
+        self.categoria_var = tk.StringVar()
+        self.descripcion_var = tk.StringVar()
+        self.monto_var = tk.StringVar()
+
+        # --- Widgets ---
+        self.crear_widgets()
+        self.actualizar_lista()
+
+    def crear_widgets(self):
+        frame_form = ttk.Frame(self, padding=10)
+        frame_form.pack(fill="x")
+
+        ttk.Label(frame_form, text="Categoría:").grid(row=0, column=0, padx=5, pady=5, sticky="e")
+        ttk.Entry(frame_form, textvariable=self.categoria_var, width=25).grid(row=0, column=1, padx=5)
+
+        ttk.Label(frame_form, text="Descripción:").grid(row=1, column=0, padx=5, pady=5, sticky="e")
+        ttk.Entry(frame_form, textvariable=self.descripcion_var, width=25).grid(row=1, column=1, padx=5)
+
+        ttk.Label(frame_form, text="Monto ($):").grid(row=2, column=0, padx=5, pady=5, sticky="e")
+        ttk.Entry(frame_form, textvariable=self.monto_var, width=25).grid(row=2, column=1, padx=5)
+
+        ttk.Button(frame_form, text="Agregar gasto", command=self.agregar_gasto).grid(row=3, column=0, columnspan=2, pady=10)
+
+        # --- Lista de gastos ---
+        frame_lista = ttk.Frame(self, padding=10)
+        frame_lista.pack(fill="both", expand=True)
+
+        self.lista = tk.Listbox(frame_lista, height=10, font=("Courier", 10))
+        self.lista.pack(side="left", fill="both", expand=True)
+
+        scroll = ttk.Scrollbar(frame_lista, command=self.lista.yview)
+        scroll.pack(side="right", fill="y")
+        self.lista.config(yscrollcommand=scroll.set)
+
+        # --- Total ---
+        self.lbl_total = ttk.Label(self, text="Total: $0.00", font=("Arial", 12, "bold"))
+        self.lbl_total.pack(pady=5)
+
+        ttk.Button(self, text="Actualizar lista", command=self.actualizar_lista).pack(pady=5)
+        ttk.Button(self, text="Salir", command=self.destroy).pack(pady=5)
+
+    def agregar_gasto(self):
+        categoria = self.categoria_var.get().strip()
+        descripcion = self.descripcion_var.get().strip()
+        monto = self.monto_var.get().strip()
+
+        try:
+            if not categoria or not descripcion or not monto:
+                raise ValueError("Todos los campos son obligatorios.")
+            if float(monto) <= 0:
+                raise ValueError("El monto debe ser positivo.")
+
+            self.gestor.agregar_gasto(categoria, descripcion, monto)
+            messagebox.showinfo("Éxito", "✅ Gasto agregado correctamente.")
+            self.actualizar_lista()
+            self.categoria_var.set("")
+            self.descripcion_var.set("")
+            self.monto_var.set("")
+        except ValueError as e:
+            messagebox.showerror("Error", f"❌ {e}")
+
+    def actualizar_lista(self):
+        self.lista.delete(0, tk.END)
+        for g in self.gestor.gastos:
+            self.lista.insert(tk.END, f"{g['fecha']} | {g['categoria']:<12} | ${g['monto']:>6} | {g['descripcion']}")
+        self.lbl_total.config(text=f"Total: ${self.gestor.total():.2f}")
+
+
+if __name__ == "__main__":
+    app = AppGastos()
+    app.mainloop()
